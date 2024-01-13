@@ -49,7 +49,7 @@ export class ProductsService {
       relations: {
         images: true,
       }
-    }).then();
+    });
 
     return products.map( ( product ) => ({
       ...product,
@@ -61,8 +61,9 @@ export class ProductsService {
   async findOne(term: string) {  
    
     let product: Product;
+    
     if (isUUID(term)){
-       product = await this.productRepository.findOneBy({ id:term }).then();
+       product = await this.productRepository.findOneBy({ id:term });
     } else {
       const query = this.productRepository.createQueryBuilder('prod');
       product = await query
@@ -71,19 +72,18 @@ export class ProductsService {
           slug: term.toLowerCase(),
         })
         .leftJoinAndSelect('prod.images','prodImages')
-        .getOne()
-        .then();
+        .getOne();
     }
     
     if ( !product ) 
       throw new NotFoundException(`Product with id: ${ term } not found`);
     
-      return product;
+    return product;
 
   }
 
   async findOnePlain( term: string ) {
-    const { images = [], ...rest } = await this.findOne( term ).then();
+    const { images = [], ...rest } = await this.findOne( term );
     return {
       ...rest,
       images: images.map( image => image.url )
@@ -97,39 +97,39 @@ export class ProductsService {
     const product = await this.productRepository.preload({
       id: id,
       ...toUpdate
-    }).then();
+    });
 
     if ( !product ) 
       throw new NotFoundException(`Product with id: ${ id } not found`);
 
     // Create query runner
     const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect().then();
-    await queryRunner.startTransaction().then();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
     try {
 
       if( images ) {
-        await queryRunner.manager.delete( ProductImage, { product: { id } }).then();
+        await queryRunner.manager.delete( ProductImage, { product: { id } });
 
         product.images = images.map( 
           image => this.productImageRepository.create({ url: image }) 
         )
       }
 
-      //await this.productRepository.save( product ).then();
-      await queryRunner.manager.save( product ).then();
+      //await this.productRepository.save( product );
+      await queryRunner.manager.save( product );
 
-      await queryRunner.commitTransaction().then();
-      await queryRunner.release().then();
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
 
-      return this.findOnePlain( id ).then();
+      return await this.findOnePlain( id );
 
       
     } catch (error) {
 
-      await queryRunner.rollbackTransaction().then();
-      await queryRunner.release().then();
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
       this.handleDBExceptions(error);
 
     }
@@ -137,7 +137,7 @@ export class ProductsService {
   }
 
  async remove(id: string) {  
-    const product = await this.findOne(id).then();    
+    const product = await this.findOne(id);    
     await this.productRepository.remove(product);
   }
 
@@ -159,8 +159,7 @@ export class ProductsService {
       return await query
         .delete()
         .where({})
-        .execute()
-        .then();
+        .execute();
 
     } catch (error) {
       this.handleDBExceptions(error);

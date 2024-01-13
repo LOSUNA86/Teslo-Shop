@@ -11,13 +11,13 @@ export class SeedService {
   
   async runSeed() {
     
-    await this.insertNewProducts().then();
+    await this.insertNewProducts();
     return 'success!!';
   }
 
   private async insertNewProducts() {
 
-    await this.productsService.deleteAllProducts().then();
+    await this.productsService.deleteAllProducts();
 
     const products = initialData.products;
 
@@ -27,7 +27,7 @@ export class SeedService {
       insertPromises.push( this.productsService.create( product ) );
     });
 
-    await Promise.all( insertPromises ).then();
+    await Promise.all( insertPromises );
     
     return true;
 
