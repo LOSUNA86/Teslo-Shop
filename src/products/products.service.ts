@@ -2,11 +2,12 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger, 
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, InsertEvent, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { validate as isUUID} from 'uuid'
 import { ProductImage, Product } from './entities';
 import { User } from 'src/auth/entities/user.entity';
+import { UserSubscriber } from './entities/product.subscriber';
 
 @Injectable()
 export class ProductsService {
@@ -33,7 +34,7 @@ export class ProductsService {
       });
 
       await this.productRepository.save(product);
-      
+
       return { ...product, images };
 
     } catch (error) {

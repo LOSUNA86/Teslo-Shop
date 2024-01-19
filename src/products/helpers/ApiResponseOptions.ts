@@ -1,7 +1,7 @@
-import { ApiParamOptions, ApiResponseOptions, ApiResponseSchemaHost, getSchemaPath } from "@nestjs/swagger";
+import { ApiParamOptions, ApiResponseOptions, getSchemaPath } from "@nestjs/swagger";
 import { Product } from "../entities";
 
-export const apiResponseOptionsFindAll: ApiResponseSchemaHost = {    
+export const apiResponseOptionsFindAll: ApiResponseOptions = {    
     schema: {
       allOf: [        
         {
